@@ -1,2 +1,2 @@
 # hello-world
-Just another repository
+My first git file and project. Learning about branching and merging.
