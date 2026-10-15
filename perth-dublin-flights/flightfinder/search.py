@@ -103,6 +103,8 @@ def _in_window(it: Itinerary, req: SearchRequest) -> bool:
 
 
 def _passes_filters(it: Itinerary, req: SearchRequest) -> bool:
+    if req.airlines and not it.flown_only_by(req.airlines):
+        return False
     if req.max_stops is not None and it.stops > req.max_stops:
         return False
     if (

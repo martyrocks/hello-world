@@ -17,7 +17,7 @@ from .base import Provider, google_flights_link
 
 # (carriers, via, base one-way AUD, journey hours, local departure time from PER)
 ROUTES = [
-    (("QR",), ("DOH",), 1610, 22.5, "18:45"),
+    (("QR",), ("DOH",), 1610, 22.5, "22:45"),
     (("EK",), ("DXB",), 1680, 23.5, "21:55"),
     (("EY",), ("AUH",), 1560, 24.0, "00:30"),
     (("QF", "EI"), ("LHR",), 2150, 20.5, "18:30"),

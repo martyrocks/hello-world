@@ -120,6 +120,18 @@ class ScanTests(unittest.TestCase):
         result = scan(self.req(max_stops=0), [FakeLive()], None)
         self.assertEqual(result.itineraries, [])
 
+    def test_airline_filter(self):
+        from flightfinder.models import Segment
+        qr = fare(1200, airlines=("Qatar Airways",))
+        qr.segments = (
+            Segment("PER", "DOH", "2027-01-21T22:45", "2027-01-22T05:10", "Qatar Airways", "QR 901"),
+            Segment("DOH", "DUB", "2027-01-22T08:05", "2027-01-22T12:50", "Qatar Airways", "QR 19"),
+        )
+        mixed = fare(1100, airlines=("QF", "EI"))
+        self.assertTrue(qr.flown_only_by(["QR"]))
+        self.assertFalse(mixed.flown_only_by(["QR"]))
+        self.assertTrue(mixed.flown_only_by(["qf", "ei"]))
+
     def test_dedupe_keeps_cheapest(self):
         a, b, c = fare(1000), fare(990), fare(990, live=False)
         self.assertEqual([i.price for i in dedupe([a, b])], [990])

@@ -98,6 +98,7 @@ def build_request(args: argparse.Namespace) -> SearchRequest:
         currency=args.currency.upper(),
         max_stops=args.max_stops,
         max_duration_hours=args.max_hours,
+        airlines=args.airline,
         max_live_queries=args.max_queries,
         date_step=args.date_step,
     )
@@ -341,6 +342,8 @@ def _add_search_args(p: argparse.ArgumentParser) -> None:
     f = p.add_argument_group("filters")
     f.add_argument("--max-stops", type=int)
     f.add_argument("--max-hours", type=float, help="maximum outbound journey time")
+    f.add_argument("--airline", type=lambda v: [c.strip().upper() for c in v.split(",")],
+                   help="only fares flown entirely by these airlines, e.g. QR or QR,EK")
     f.add_argument("--adults", type=int, default=1)
     f.add_argument("--cabin", default="economy",
                    choices=["economy", "premium_economy", "business", "first"])

@@ -49,6 +49,21 @@ class Itinerary:
     def total_stops(self) -> int:
         return self.stops + (self.return_stops or 0)
 
+    def flown_only_by(self, codes: list[str]) -> bool:
+        """True if every leg is on one of the given airlines (IATA codes).
+
+        Segment flight numbers are checked first because some sources (Google
+        Flights) give airline names rather than codes.
+        """
+        wanted = {c.upper() for c in codes}
+        if self.segments:
+            return all(
+                s.carrier.upper() in wanted
+                or s.flight_number.replace(" ", "")[:2].upper() in wanted
+                for s in self.segments
+            )
+        return bool(self.airlines) and all(a.upper() in wanted for a in self.airlines)
+
     @property
     def duration_hours(self) -> float | None:
         return None if self.duration_minutes is None else self.duration_minutes / 60
@@ -100,6 +115,7 @@ class SearchRequest:
     currency: str = "AUD"
     max_stops: int | None = None
     max_duration_hours: float | None = None
+    airlines: list[str] | None = None  # IATA codes; keep fares flown only by these
     max_live_queries: int = 12
     date_step: int = 1
 

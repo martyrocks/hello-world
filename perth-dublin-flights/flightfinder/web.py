@@ -38,6 +38,7 @@ def request_from_params(q: dict[str, str]) -> SearchRequest:
         currency=(q.get("currency") or "AUD").upper(),
         max_stops=int(max_stops) if max_stops not in (None, "", "any") else None,
         max_duration_hours=float(max_hours) if max_hours else None,
+        airlines=[c.strip().upper() for c in q["airline"].split(",")] if q.get("airline") else None,
         max_live_queries=min(40, int(q.get("max_queries") or 12)),
     )
 

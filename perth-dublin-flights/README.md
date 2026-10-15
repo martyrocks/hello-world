@@ -86,6 +86,7 @@ Run `python3 -m flightfinder <command> --help` to see every option. Useful ones:
 | `--max-queries` | How many date combinations to price with paid live sources (default 12) |
 | `--sort` | `price`, `best`, `duration`, `stops`, `score`, `date` |
 | `--providers` | Use only some sources, e.g. `--providers serpapi` |
+| `--airline` | Only fares flown entirely by these airlines, e.g. `--airline QR` |
 
 ## How it works
 
@@ -132,6 +133,7 @@ flightfinder/
   web.py, static/   dashboard
   providers/        travelpayouts.py, duffel.py, serpapi.py, demo.py
 docs/RATEPUNK_ANALYSIS.md   what Ratepunk does and how this app compares
+docs/QATAR_QR901_PER_DOH_DUB_2027-01-21.md   Qatar PER-DOH-DUB connection analysis + upgrade tips
 tests/              unit and end-to-end tests (python3 -m unittest discover -s tests)
 ```
 
