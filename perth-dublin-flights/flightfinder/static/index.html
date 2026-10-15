@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perth → Dublin Fares</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --text: #16191d; --muted: #5f6b7a; --line: #e2e6eb;
+    --accent: #0f766e; --accent-soft: #ccfbf1; --bar: #5eead4; --bar-low: #0f766e;
+    --great: #15803d; --good: #4d7c0f; --fair: #a16207; --poor: #b91c1c; --warn-bg: #fef3c7; --warn: #92400e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1216; --card: #171b21; --text: #e7eaee; --muted: #9aa5b1; --line: #2a3038;
+      --accent: #2dd4bf; --accent-soft: #134e4a; --bar: #2b7a72; --bar-low: #2dd4bf;
+      --great: #4ade80; --good: #a3e635; --fair: #facc15; --poor: #f87171; --warn-bg: #422006; --warn: #fcd34d;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end; }
+  label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+  input, select, button { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line);
+                          background: var(--bg); color: var(--text); min-width: 0; }
+  label.check { flex-direction: row; align-items: center; gap: 8px; padding-bottom: 8px; }
+  button { background: var(--accent); color: #fff; border: 0; font-weight: 600; cursor: pointer; }
+  @media (prefers-color-scheme: dark) { button { color: #04201d; } }
+  button:disabled { opacity: .6; cursor: progress; }
+  .notice { background: var(--warn-bg); color: var(--warn); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 14px; }
+  .hero { display: flex; flex-wrap: wrap; gap: 24px; align-items: baseline; }
+  .hero .price { font-size: 34px; font-weight: 700; color: var(--accent); }
+  .hero .meta { color: var(--muted); }
+  .cal { display: flex; align-items: flex-end; gap: 2px; height: 140px; overflow-x: auto; padding-top: 8px; }
+  .cal .col { flex: 1 0 14px; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+  .cal .bar { background: var(--bar); border-radius: 3px 3px 0 0; min-height: 4px; }
+  .cal .bar.low { background: var(--bar-low); }
+  .cal .lbl { font-size: 10px; color: var(--muted); text-align: center; height: 14px; overflow: visible; white-space: nowrap; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; }
+  td.price { font-weight: 700; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--accent-soft); }
+  .s-Exceptional, .s-Great { color: var(--great); } .s-Good { color: var(--good); }
+  .s-Fair { color: var(--fair); } .s-Poor { color: var(--poor); }
+  .flags { color: var(--muted); font-size: 12px; white-space: normal; }
+  a { color: var(--accent); }
+  .muted { color: var(--muted); }
+  @media (max-width: 600px) { .hero .price { font-size: 28px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Perth → Dublin fare finder</h1>
+  <p class="sub">Scans every configured fare source across your dates, then ranks the results by price, value and deal score.</p>
+
+  <div class="card">
+    <form id="f">
+      <label>From <input name="from" value="PER" maxlength="15"></label>
+      <label>To <input name="to" value="DUB" maxlength="15"></label>
+      <label>Depart (YYYY-MM or start:end) <input name="depart" id="depart" placeholder="2026-11"></label>
+      <label>Trip
+        <select name="stay">
+          <option value="">One-way</option>
+          <option value="14">Return, 14 nights</option>
+          <option value="21">Return, 21 nights</option>
+          <option value="28">Return, 28 nights</option>
+          <option value="14-28">Return, 14–28 nights</option>
+        </select>
+      </label>
+      <label>Max stops
+        <select name="max_stops"><option value="">Any</option><option>0</option><option>1</option><option>2</option></select>
+      </label>
+      <label>Sort
+        <select name="sort">
+          <option value="price">Cheapest</option><option value="best">Best value</option>
+          <option value="duration">Fastest</option><option value="score">Deal score</option>
+          <option value="date">Date</option>
+        </select>
+      </label>
+      <label>Currency
+        <select name="currency"><option>AUD</option><option>EUR</option><option>USD</option><option>GBP</option></select>
+      </label>
+      <label class="check"><input type="checkbox" name="nearby" value="1"> Include Cork / Shannon / Belfast</label>
+      <button id="go" type="submit">Find cheapest flights</button>
+    </form>
+  </div>
+
+  <div id="out"></div>
+</main>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = (v, c) => new Intl.NumberFormat(undefined, {style: "currency", currency: c, maximumFractionDigits: 0}).format(v);
+const fmtDate = (d) => d ? new Date(d + "T00:00:00").toLocaleDateString(undefined, {weekday: "short", day: "numeric", month: "short"}) : "–";
+
+// Default to next month.
+const nm = new Date(); nm.setMonth(nm.getMonth() + 1);
+$("#depart").value = `${nm.getFullYear()}-${String(nm.getMonth() + 1).padStart(2, "0")}`;
+
+$("#f").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const params = new URLSearchParams(new FormData(e.target));
+  $("#go").disabled = true; $("#go").textContent = "Searching…";
+  $("#out").innerHTML = `<div class="card muted">Scanning fares… live sources can take up to a minute.</div>`;
+  try {
+    const r = await fetch("/api/search?" + params);
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || r.statusText);
+    render(data);
+  } catch (err) {
+    $("#out").innerHTML = `<div class="card notice">Search failed: ${esc(err.message)}</div>`;
+  } finally {
+    $("#go").disabled = false; $("#go").textContent = "Find cheapest flights";
+  }
+});
+
+function render(d) {
+  let html = "";
+  if (d.demo) html += `<div class="notice">Showing <b>demo data</b>. Add an API key (see README) to see real fares.</div>`;
+  for (const e of d.errors) html += `<div class="notice">${esc(e)}</div>`;
+  if (!d.cheapest) { $("#out").innerHTML = html + `<div class="card">No fares found for those dates and filters.</div>`; return; }
+
+  const c = d.cheapest;
+  html += `<div class="card hero">
+    <div><div class="muted">Cheapest found</div><div class="price">${money(c.price, c.currency)}</div></div>
+    <div class="meta">${fmtDate(c.departure_date)}${c.return_date ? " → " + fmtDate(c.return_date) : ""}<br>
+      ${esc(c.airlines.join(" / "))} · ${c.stops} stop(s)${c.via.length ? " via " + esc(c.via.join(", ")) : ""}
+      ${c.duration_hours ? " · " + c.duration_hours + "h" : ""}</div>
+    <div class="meta">Deal: <b class="s-${esc(c.deal_label)}">${esc(c.deal_label || "–")}</b> ${c.deal_score ?? ""}<br>
+      ${c.booking_url ? `<a href="${esc(c.booking_url)}" target="_blank" rel="noopener">Check &amp; book →</a>` : ""}</div>
+  </div>`;
+
+  if (d.calendar.length > 1) {
+    const prices = d.calendar.map(x => x.price), lo = Math.min(...prices), hi = Math.max(...prices);
+    html += `<div class="card"><b>Cheapest fare by departure date</b><div class="cal">` +
+      d.calendar.map((x, i) => {
+        const h = hi > lo ? 15 + 85 * (x.price - lo) / (hi - lo) : 50;
+        const label = (i % 7 === 0 || x.price === lo) ? fmtDate(x.date).replace(/^\w+,?\s/, "") : "";
+        return `<div class="col" title="${fmtDate(x.date)}: ${money(x.price, x.currency)}">
+          <div class="bar ${x.price === lo ? "low" : ""}" style="height:${h}%"></div><div class="lbl">${esc(label)}</div></div>`;
+      }).join("") + `</div></div>`;
+  }
+
+  html += `<div class="card"><b>${d.count} fares</b> <span class="muted">· sources: ${esc(d.providers.join(", "))}</span>
+    <div class="table-wrap"><table><thead><tr>
+      <th>Price</th><th>Deal</th><th>Depart</th><th>Return</th><th>Airlines</th><th>Stops</th><th>Time</th><th>Source</th><th></th>
+    </tr></thead><tbody>` +
+    d.results.map(it => `<tr>
+      <td class="price">${money(it.price, it.currency)}</td>
+      <td>${it.deal_label ? `<span class="pill s-${esc(it.deal_label)}">${esc(it.deal_label)} ${it.deal_score}</span>` : "–"}</td>
+      <td>${fmtDate(it.departure_date)}</td><td>${fmtDate(it.return_date)}</td>
+      <td>${esc(it.airlines.join(" / ") || "–")}</td>
+      <td>${it.stops}${it.via.length ? " · " + esc(it.via.join(", ")) : ""}${it.return_stops != null ? " / " + it.return_stops : ""}</td>
+      <td>${it.duration_hours ? it.duration_hours + "h" : "–"}</td>
+      <td>${esc(it.provider)}${it.is_live ? "" : " <span class='muted'>(cached)</span>"}</td>
+      <td>${it.booking_url ? `<a href="${esc(it.booking_url)}" target="_blank" rel="noopener">Book</a>` : ""}</td>
+    </tr>${it.flags.length ? `<tr><td></td><td colspan="8" class="flags">${esc(it.flags.join(" · "))}</td></tr>` : ""}`).join("") +
+    `</tbody></table></div></div>`;
+  $("#out").innerHTML = html;
+}
+</script>
+</body>
+</html>
